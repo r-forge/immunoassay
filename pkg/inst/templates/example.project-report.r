@@ -50,7 +50,7 @@ Michal J. \textsc{Figurski}, PhD.
 \begin{minipage}{0.4\textwidth}
 \begin{flushright} \large
 \emph{Reviewed by:} \\
-Michal J. \textsc{Figurski}, PhD.
+Leslie M. \textsc{Shaw}, PhD.
 \end{flushright}
 \end{minipage}
 

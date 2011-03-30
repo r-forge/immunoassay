@@ -1,0 +1,10 @@
+Package: immunoassay
+Type: Package
+Title: Functions for working with immunoassay data.
+Version: 0.3
+Date: 2011-03-29
+Author: Michal J. Figurski, PhD; Leslie M. Shaw, PhD.
+Maintainer: Michal J. Figurski <mfigrs@gmail.com>
+Description: This package contains several functions for loading immunoassay data, fine-tuning of sigmoidal models beyond the limits of instrument software; and for batch processing of immunoassay output files and creation of reports with nice graphics.
+License: GPL-2
+LazyLoad: yes
