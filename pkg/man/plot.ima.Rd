@@ -5,11 +5,11 @@
 \description{Use these functions to print out and make plots of raw (as well as fitted) immunoassay 
   run objects of class \code{ima}.}
 \usage{
-plot.ima(data, type = "cts", analyte = 1, ref = 0.25, cts.scale = 350, ...)
-print.ima(data)
+    \method{plot}{ima}(x, type = "cts", analyte = 1, ref = 0.25, cts.scale = 350, ...)
+    \method{print}{ima}(x, ...)
 }
 \arguments{
-  \item{data}{An object of class \code{ima}.}
+  \item{x}{An object of class \code{ima}.}
   \item{type}{Character. This can be either \code{"cts"}, \code{"cv"}, or \code{"accuracy"}. 
     The \code{type="cts"} is the default for un-fitted \code{ima} data objects and it plots COUNTS for visual
     inspection. The \code{type="cv"} for the un-fitted \code{ima} object displays the \%CV of the MFIs, 
@@ -21,7 +21,8 @@ print.ima(data)
     \code{"accuracy"} plots. The default is 0.25 (25\%). Use \code{ref=0} to suppress plotting of reference circles.}
   \item{cts.scale}{Numeric. This is the scaling factor for COUNTS only. The default is 350, which made the 
     size of the circles small enough to fit within cells - within our project.}
-  \item{\dots}{Other graphical parameters passed along to \code{plot} function.}
+  \item{\dots}{Other graphical parameters passed along to \code{plot} function. In \code{print}
+    method - currently ignored.}
 }
 \details{These functions are utilized to display data from \code{ima} objects and additionally provide some functionality
 for fitted objects. These functions have been thoroughly tested in only one project environment and may not work

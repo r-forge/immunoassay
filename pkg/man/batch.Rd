@@ -10,8 +10,10 @@
 \usage{
 batch(path, subfolder = "", kit.file = NULL, analytes = "all", 
     run.options     = list(CTS = 20, MFI = "last", CV = 20), 
-    model.options   = list(model = "L.5", weights = "sqrt", refit = 0.2, use = 1, stvals = "adaptive"), 
-    project.options = list(report = "text", template = "short", trace = TRUE), 
+    model.options   = list(model = "L.5", weights = "sqrt", 
+                      refit = 0.2, use = 1, stvals = "adaptive"), 
+    project.options = list(report = "text", template = "short", 
+                      trace = TRUE), 
     correct.errors  = NULL)
 }
 \arguments{
@@ -113,13 +115,17 @@ University of Pennsylvania, Philadelphia, PA.}
     \code{\link{read.kits}} and \code{\link{sigfit}}.}
 \examples{\dontrun{
 
-a = batch("path-to-my-project", subfolder="Results", kit.file="kit-file-name.csv", analytes=1:2, 
-    model.options   = list(model="L.5", weights=c("sqrt","1/y"), refit=0.2, use=1, stvals="adaptive"),
-    project.options = list(report="latex", template="my-project-name", trace=FALSE),
-    correct.errors  = list(`Plasma Pl072.csv`=list(name="use", value=c(0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1))))
+a <- batch("path-to-my-project", subfolder="Results", 
+     kit.file="kit-file-name.csv",  analytes=1:2, 
+     model.options   = list(model="L.5", weights=c("sqrt","1/y"), refit=0.2, 
+                       use=1, stvals="adaptive"),
+     project.options = list(report="latex", template="my-project-name", 
+                       trace=FALSE),
+     correct.errors  = list(`Plasma Pl072.csv`=list(name="use", 
+                       value=c(0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1))))
 
 }}
 \keyword{ immunoassay }
-\keyword{ sigmoidal fit }
+\keyword{ sigmoidal }
 \keyword{ batch processing }
 \keyword{ report }

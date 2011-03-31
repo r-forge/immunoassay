@@ -1,7 +1,5 @@
 \name{sigfit}
 \alias{sigfit}
-\alias{sigfit.auto}
-\alias{sigfit.default}
 \title{Fit the sigmoidal model to raw immunoassay run data.}
 \description{
     This function fits either a 4-PL or 5-PL sigmoidal model (classic logistic model and the 
@@ -12,7 +10,8 @@
     remove erroneous calibration points (only one replicate) automatically to improve the fit.
 }
 \usage{
-    sigfit(x, analyte = 1, model = "L.5", weights = "sqrt", refit = 0.2, use = 1, stvals = "adaptive")
+    sigfit(x, analyte = 1, model = "L.5", weights = "sqrt", 
+        refit = 0.2, use = 1, stvals = "adaptive", sledz=NULL)
 }
 \arguments{
   \item{x}{An object of class \code{"ima"}.} 
@@ -69,6 +68,9 @@
     for 5-PL models. If using the list for this parameter, currently the function will 
     allow only one model type (either 4-PL or 5-PL), but multiple weighting types are 
     still possible.
+    }
+  \item{sledz}{
+    Logical. This turns on internal debugging for use by the developer only. Defaults to FALSE.
     }
 }
 \details{    
@@ -137,6 +139,6 @@
     plot(fit)
 }}
 \keyword{ immunoassay }
-\keyword{ sigmoidal model }
+\keyword{ sigmoidal }
 \keyword{ nls }
 \keyword{ sigfit }

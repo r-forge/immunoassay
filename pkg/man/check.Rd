@@ -1,6 +1,5 @@
 \name{check}
 \alias{check}
-\alias{check.sigfit}
 \title{
 Function to examine the sigmoidal fit done by "sigfit".
 }

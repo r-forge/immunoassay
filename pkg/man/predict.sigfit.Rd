@@ -7,10 +7,10 @@
     is that \code{predict.nls} would make predictions in the scale of MFI.
 }
 \usage{
-    predict.sigfit(x, newdata = NULL, e.fit = FALSE)
+    \method{predict}{sigfit}(object, newdata = NULL, e.fit = FALSE, ...)
 }
 \arguments{
-    \item{x}{An object of class \code{"sigfit"} - fitted sigmoidal model.}
+    \item{object}{An object of class \code{"sigfit"} - fitted sigmoidal model.}
     \item{newdata}{Data for which to make predictions. If omitted (default), the predictions
         will be made for the standards that were used to fit the model. Otherwise, \code{newdata}
         can be an object of class \code{"ima"}, or a regular \code{data.frame} with MFI 
@@ -20,6 +20,7 @@
         "analyte-name" must match the name of the analyte in the model.}
     \item{e.fit}{Logical. If \code{TRUE}, fit prediction errors (in the percent scale) will
         be added to the result. The default is \code{FALSE}.}
+    \item{\dots}{Currenly ignored.}
 }
 \details{
     This function uses the inverse-sigmoid formula to make predictions from \code{nls} model
@@ -42,3 +43,4 @@
 \keyword{ immunoassay }
 \keyword{ predict }
 \keyword{ fitted object }
+\keyword{ sigfit }

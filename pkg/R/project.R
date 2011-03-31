@@ -1,7 +1,7 @@
   
 project.means      <- function(x) {
     minus = match(c("ID","Type","Loc","SPL","Kit"), names(x))
-    res  = aggregate(x[, -minus], by=list(ID=x$ID,Type=x$Type,SPL=x$SPL, Kit=x$Kit), FUN=mean, na.rm=T)
+    res  = aggregate(x[, -minus], by=list(ID=x$ID,Type=x$Type,SPL=x$SPL, Kit=x$Kit), FUN=mean, na.rm=TRUE)
     res  = res[res$Type!="Missing",]
     res  = res[order(res$ID, res$Type, res$SPL),]
     
@@ -14,12 +14,12 @@ project.means      <- function(x) {
     invisible(res)
 }
 
-project.qcplot     <- function(x, samples=c("ConA","ConB"), type="pred", breaks=c(1,length(unique(x$ID))), log=F, ...) {
+project.qcplot     <- function(x, samples=c("ConA","ConB"), type="pred", breaks=c(1,length(unique(x$ID))), log=FALSE, ...) {
     z.analytes = substr(names(x)[substr(names(x),0,4)=="MFI."],5,50)
     n  		   = length(z.analytes)
     for (i3 in samples) {
-        my  = max(x[x$SPL==i3, paste(rep(type, n), z.analytes, sep=".")], na.rm=T)
-        mmy = min(x[x$SPL==i3, paste(rep(type, n), z.analytes, sep=".")], na.rm=T)
+        my  = max(x[x$SPL==i3, paste(rep(type, n), z.analytes, sep=".")], na.rm=TRUE)
+        mmy = min(x[x$SPL==i3, paste(rep(type, n), z.analytes, sep=".")], na.rm=TRUE)
         mx  = nrow(x[x$SPL==i3,])
         plot(0,0, ylim=c(ifelse(log==TRUE,mmy*0.9,0), my), xlim=c(1, mx), xlab = "Plate #", 
             ylab= paste(ifelse(log==TRUE, "log(",""), ifelse(type=="pred","Concentration [pg/mL]",type), ifelse(log==TRUE, ")",""), sep=""),
@@ -29,8 +29,8 @@ project.qcplot     <- function(x, samples=c("ConA","ConB"), type="pred", breaks=
             i2 = paste(type, z.analytes[i1], sep=".")
             for (i4 in 1:(length(breaks)-1)) {
                 a.r = c(breaks[i4], breaks[i4+1]) - c(0, ifelse(i4<length(breaks)-1,1,0))
-                a.m = mean(x[x$SPL==i3, i2][a.r[1]:a.r[2]], na.rm=T)
-                a.s = sd(x[x$SPL==i3, i2][a.r[1]:a.r[2]], na.rm=T)
+                a.m = mean(x[x$SPL==i3, i2][a.r[1]:a.r[2]], na.rm=TRUE)
+                a.s = sd(x[x$SPL==i3, i2][a.r[1]:a.r[2]], na.rm=TRUE)
                 if (is.na(a.s)) a.s = 0
                 a.r = a.r + c(-0.5, 0.5)
                 for(i5 in 1:2) {

@@ -45,4 +45,4 @@ str(immunoassay.kits)
 }
 \keyword{ datasets }
 \keyword{ immunoassay }
-\keyword{ kit }
+\keyword{ kit data }

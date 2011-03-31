@@ -15,20 +15,20 @@ sigfit <- function(x, analyte=1, model="L.5", weights="sqrt", refit=0.2, use=1, 
 }
 
 sigfit.default <- function(x, analyte, model, weights, use, stvals) {
-    # Error check & variable set
+    # Error check and variable set
     if (class(x)[1]!="ima") stop("\"x\" must be of class \"ima\".")
     z.analyte = attr(x, "Analytes")[analyte]
     if (is.na(z.analyte)) stop("No such analyte in the data.")
-    type  = unlist(strsplit(model, split=".", fixed=T))[2]
+    type  = unlist(strsplit(model, split=".", fixed=TRUE))[2]
     if (!(type %in% c("4","5"))) stop("Equation of type \"", type, "\" not supported.")
-    model  = toupper(unlist(strsplit(model, split=".", fixed=T))[1])
+    model  = toupper(unlist(strsplit(model, split=".", fixed=TRUE))[1])
     if (!(substr(model,0,1) %in% c("H","L"))) stop("Model equation \"", model, "\" not supported.")
 
     # Save QCs
     qcs = x[x$Type=="QC", ]
     if (nrow(qcs)>0) {
         rownames(qcs) = paste(qcs$SPL, " (", unlist(strsplit(as.character(qcs$Loc), 
-            split = "(", fixed = T))[seq(2, nrow(qcs), 2)], sep = "")
+            split = "(", fixed=TRUE))[seq(2, nrow(qcs), 2)], sep = "")
         qcs         = as.data.frame(qcs[,paste(c("MFI", "conc"), rep(z.analyte,2), sep=".")])
         names(qcs)  = c("MFI","value")
         }
@@ -37,7 +37,7 @@ sigfit.default <- function(x, analyte, model, weights, use, stvals) {
     x = x[x$Type=="Standard",]
     cals = x[tolower(x$SPL)!="background", paste(c("MFI","conc"), rep(z.analyte,2), sep=".")]
     rownames(cals) = paste(x$SPL, " (", unlist(strsplit(as.character(x$Loc), 
-    split = "(", fixed = T))[seq(2, nrow(x), 2)], sep = "")
+    split = "(", fixed=TRUE))[seq(2, nrow(x), 2)], sep = "")
     cals$weights = 1
     if (length(use)!=1 & length(use)!=nrow(cals)) stop("\"use\" vector must be of length 1 or length equal to number of calibrators.")
     cals$use     = use
@@ -66,13 +66,13 @@ sigfit.default <- function(x, analyte, model, weights, use, stvals) {
     if (class(stvals)!="numeric") stop("Check your starting values.")
 
     # Set weights
-    for (i1 in unique(cals[,2])) cals$aveMFI[cals[,2]==i1] = mean(cals[cals[,2]==i1,1], na.rm=T)
+    for (i1 in unique(cals[,2])) cals$aveMFI[cals[,2]==i1] = mean(cals[cals[,2]==i1,1], na.rm=TRUE)
     if (length(weights)==0) { weights = "none" }
     if (length(weights)==1) if (is.na(weights)) { weights = "none" }
     if (length(weights)==1 & class(weights)=="character") {
         if (!(weights %in% c("1/y","sqrt","248","123","none"))) stop("Unknown weighting type.")
-        if (weights=="1/y")  cals$weights = 1/(cals$aveMFI^2)/(max(1/(cals$aveMFI^2), na.rm=T))
-        if (weights=="sqrt") cals$weights = sqrt(1/(cals$aveMFI^2)/(max(1/(cals$aveMFI^2), na.rm=T)))
+        if (weights=="1/y")  cals$weights = 1/(cals$aveMFI^2)/(max(1/(cals$aveMFI^2), na.rm=TRUE))
+        if (weights=="sqrt") cals$weights = sqrt(1/(cals$aveMFI^2)/(max(1/(cals$aveMFI^2), na.rm=TRUE)))
         if (weights=="248")  cals$weights = rev(1/(2^rep(0:(floor(nrow(cals)/2)-1), each=2)))
         if (weights=="123")  cals$weights = rev(1/(rep(1:(floor(nrow(cals)/2)), each=2)))
         if (weights=="none") cals$weights = rep(1, nrow(cals))
@@ -80,7 +80,7 @@ sigfit.default <- function(x, analyte, model, weights, use, stvals) {
     else {
         if (length(weights)!=nrow(cals)) stop("Length of \"weights\" must be the same as the number of calibrators (", nrow(cals),").")
         if (!(class(weights) %in% c("numeric","integer"))) stop("Unknown weighting type.")
-        if (any(weights>1)) weights = weights / max(weights, na.rm=T)
+        if (any(weights>1)) weights = weights / max(weights, na.rm=TRUE)
         cals$weights = weights
         }
 
@@ -95,23 +95,23 @@ sigfit.default <- function(x, analyte, model, weights, use, stvals) {
         if (type=="4") z.fit = nls(MFI ~ a + b/(1+10^((c-log(value))*d)), 
             data    = cs, 
             start   = stvals, 
-            control = list(maxiter=2000, warnOnly = F) , algorithm="port",
+            control = list(maxiter=2000, warnOnly = FALSE) , algorithm="port",
             weights = cs$weights)
         if (type=="5") z.fit = nls(MFI ~ a + b/(1+10^((c-log(value))*d))^f, 
             data    = cs, 
             start   = stvals, 
-            control = list(maxiter=2000, warnOnly = F) , algorithm="port",
+            control = list(maxiter=2000, warnOnly = FALSE) , algorithm="port",
             weights = cs$weights)
         }
     if (model=="L") {
         if (type=="4") z.fit = nls(MFI ~ a + b/((1+(value/c)^d)), data=cs, 
             start   = stvals, 
             weights = cs$weights, 
-            control = list(maxiter=1000, warnOnly = F) , algorithm="port")
+            control = list(maxiter=1000, warnOnly = FALSE) , algorithm="port")
         if (type=="5") z.fit = nls(MFI ~ a + b/((1+(value/c)^d)^f), data=cs, 
             start   = stvals, 
             weights = cs$weights, 
-            control = list(maxiter=1000, warnOnly = F) , algorithm="port")
+            control = list(maxiter=1000, warnOnly = FALSE) , algorithm="port")
         }
 
     # Finish
@@ -157,13 +157,13 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
             if (!is.null(sledz)) { cat("\n", sledz, "*******", i2, i3, "*******")
             cat("\n", sledz, "* Podejscie 1") }  # Po prostu wpasuj funkcje
             
-            if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, use, stvals), silent=T)
-            else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, use, stvals), silent=T)
+            if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, use, stvals), silent=TRUE)
+            else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, use, stvals), silent=TRUE)
             if (class(z.fit)=="try-error") {
                 if (!is.null(sledz)) { cat("\n", sledz, "* Podejscie 2") } # Moze uzyj standardowych wartosci startowych
                 if (length(grep("nls", z.fit))==0 & length(grep("numericDeriv", z.fit))==0) stop(geterrmessage())
-                if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, stvals=NULL, ...), silent=T)
-                else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, stvals=NULL, ...), silent=T)
+                if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, stvals=NULL, ...), silent=TRUE)
+                else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, stvals=NULL, ...), silent=TRUE)
                 if (class(z.fit)=="try-error") {
                     if (!is.null(sledz)) { cat("\n", sledz, "* Podejscie 3") } # Wywal 1szy lub ostatni kalibrator
                     if (length(use)==1) uzyj = rep(1,nrow(x[x$Type=="Standard",]))
@@ -173,8 +173,8 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
                     if (any(temp[cals %in% cals[length(cals)], 2] < 10 * attr(x, "Background")[analyte])) {
                         uzyj[cals %in% cals[length(cals)]] = NA }
                     else { uzyj[cals %in% unique(cals)[1]] = NA }
-                    if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, stvals=NULL, use=uzyj), silent=T)
-                    else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, stvals=NULL, use=uzyj), silent=T)
+                    if (i3!="custom") z.fit = try(sigfit.default(x, analyte, model=i2, weights=i3, stvals=NULL, use=uzyj), silent=TRUE)
+                    else z.fit = try(sigfit.default(x, analyte, model=i2, weights=weights, stvals=NULL, use=uzyj), silent=TRUE)
                     if (class(z.fit)=="try-error") {
                         if (!is.null(sledz)) { cat("\n", sledz, "* Nie udalo sie.") }
                         ssr   = rbind(ssr, c(analyte, i2, i3, rep(NA,8)))
@@ -186,7 +186,7 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
                 else { if (!is.null(sledz)) { t1 = check(z.fit); cat("\n", sledz, "* SSE:", t1$SSE, "; sigma:", t1$sigma, "; R-kwadrat:",t1$r.squared) } }
                 }
             else { if (!is.null(sledz)) { t1 = check(z.fit); cat("\n", sledz, "* SSE:", t1$SSE, "; sigma:", t1$sigma, "; R-kwadrat:",t1$r.squared) } }
-            pred = try(predict(z.fit, e.fit=T), silent=T)
+            pred = try(predict(z.fit, e.fit=TRUE), silent=TRUE)
             if (!is.null(sledz)) { cat("\n", sledz, "***********************") }
             if (class(pred)=="try-error") {
                 ssr    = rbind(ssr, c(analyte, i2, i3, rep(NA,8)))
@@ -225,7 +225,7 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
         }
     else {
         repeat {
-            by.all    = suppressWarnings(match(min(abs(ssr$criteria), na.rm=T), abs(ssr$criteria)))
+            by.all    = suppressWarnings(match(min(abs(ssr$criteria), na.rm=TRUE), abs(ssr$criteria)))
             z.fit  = fits[[by.all]]
             if (is.null(z.fit)) stop("No reliable fit could be automatically obtained from the provided list of models.")
             if (any(is.na(predict(z.fit))) & is.na(refit)) { ssr$criteria[by.all] = NA  } # Eliminate models that make NA predictions in any calibrator
@@ -243,10 +243,10 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
         else uzyj = use
         use.old = uzyj 
         usen    = as.character(x[x$Type=="Standard","SPL"])
-        pred    = predict(z.fit, e.fit=T)
-        if (any(abs(pred$error)>refit*100, na.rm=T)) {
+        pred    = predict(z.fit, e.fit=TRUE)
+        if (any(abs(pred$error)>refit*100, na.rm=TRUE)) {
             # Calculate rank of error
-            pred$rank[order(abs(pred$error), decreasing=T)] = seq(1,nrow(pred),1)  
+            pred$rank[order(abs(pred$error), decreasing=TRUE)] = seq(1,nrow(pred),1)  
             
             # Go through all ranks, starting from the biggest error
             for (i5 in 1:(max(na.omit(pred$rank))-2)) {
@@ -258,15 +258,15 @@ sigfit.auto <- function(x, analyte, model, weights, refit, use, stvals, sledz) {
                 if (!is.null(sledz)) { cat(" uzyj: ", uzyj) 
                 n.fit  = try(sigfit(x=x, analyte=analyte, model=model, weights=weights, 
                     refit=NA, use=uzyj, stvals="adaptive", sledz=paste(sledz,"   ")), 
-                    silent=T)                                       # Refit with new calibrators
+                    silent=TRUE)                                       # Refit with new calibrators
                     }
                 else {
                 n.fit  = try(sigfit(x=x, analyte=analyte, model=model, weights=weights, 
-                    refit=NA, use=uzyj, stvals="adaptive", sledz=NULL), silent=T)
+                    refit=NA, use=uzyj, stvals="adaptive", sledz=NULL), silent=TRUE)
                     }
                 if (class(n.fit)=="try-error") { # If refit failed
                     uzyj[n] = use.old[n]                            # Restore calibrator
-                    if (!is.null(sledz)) { cat("\n", sledz, "- Re-fit sie nie powiódl.\n") }
+                    if (!is.null(sledz)) { cat("\n", sledz, "- Re-fit sie nie powiodl.\n") }
                     next }# Skip the rest
                 val.old = check(z.fit)                  # Evaluate the fit
                 val.new = check(n.fit)

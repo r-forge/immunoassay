@@ -17,11 +17,12 @@
 }
 \usage{
 project.means(x)
-project.qcplot(x, samples=c("ConA","ConB"), type="pred", breaks=c(1,length(unique(x$ID))), log=FALSE, ...)
+project.qcplot(x, samples=c("ConA","ConB"), type="pred", 
+    breaks=c(1,length(unique(x$ID))), log=FALSE, ...)
 }
 \arguments{
   \item{x}{A \code{data.frame} of results from the \code{\link{batch}} function - 
-    either \code{immunoassay.environment$l.run} or \code{immunoassay.environment$results}.}
+    either \cr \code{immunoassay.environment$l.run} or \cr \code{immunoassay.environment$results}.}
   \item{samples}{Character vector of sample names to be plotted. A new plot will be called 
     for each sample, so make sure to include \code{par(mfrow=)} parameter when using more
     than one sample in this place. This serves the purpose of having multiple plots on a 
@@ -37,6 +38,7 @@ project.qcplot(x, samples=c("ConA","ConB"), type="pred", breaks=c(1,length(uniqu
     no automatic selection of kits is implemented.}
   \item{log}{Logical. If \code{TRUE}, the function takes a natural logarithm of y-axis values.
     Defaults to \code{FALSE}.}
+  \item{\dots}{Other parameters passed along to \code{plot}.}
 }
 \details{
     The two functions mentioned above are simple utility functions called by the EXAMPLE 
@@ -54,5 +56,6 @@ Pennsylvania, Philadelphia, PA.}
 \keyword{ batch processing }
 \keyword{ multiplex }
 \keyword{ sigmoidal }
+\keyword{ report }
 
 

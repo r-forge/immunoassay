@@ -28,42 +28,41 @@ License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }
 There are three main functions in this package:
-\tabular{ll}{
-\code{\link{read.multiplex}}: \tab A function to extract data from a multiplex .csv file.\cr
-\code{\link{sigfit}}: \tab A function that fits a choice of sigmoidal models to the data.\cr
-\code{\link{batch}}: \tab A batch-processing function that uses the above two functions to process folders of data files.\cr
-}
+\describe{
+    \item{\link{read.multiplex}}{A function to extract data from a multiplex .csv file.}
+    \item{\link{sigfit}}{A function that fits a choice of sigmoidal models to the data.}
+    \item{\link{batch}}{A batch-processing function that uses the above two functions\cr to process folders of data files.}
+  }
 The functions in the \code{immunoassay} package define two classes: \code{ima} class for raw immunoassay data,
 and \code{sigfit} class for fitted sigmoidal models. For these classess \code{print}, \code{summary} 
 and \code{plot} methods exist. See help on individual functions for more details.
 
 Additionally the \code{immunoassay} package relies on several global vectors:
-\tabular{ll}{
-immunoassay.kits: \tab A data frame containing kit information (concentrations of Standards and QCs
+\describe{
+  \item{immunoassay.kits}{A data frame containing kit information (concentrations of Standards and QCs
     for every analyte) for the kits used in producing the data to be processed. This is a required
     element - functions will not run without it, however the \code{\link{batch}} function will
     load the kit data automatically if it exists in proper location and has a proper name. For
-    more information, see help on \code{\link{read.kits}} and \code{\link{batch}} functions.\cr
-immunoassay.coefs: \tab A list created by \code{\link{batch}} function, that contains equation coefficients
+    more information, see help on \code{\link{read.kits}} and \code{\link{batch}} functions.}
+  \item{immunoassay.coefs}{A list created by \code{\link{batch}} function, that contains equation coefficients
     for every fitted model. This list is used by the fitting function to calculate starting values
     for subsequent fits. This element is not required to start (default starting values will be used), 
-    but it will be automatically created. For more information, see help on \code{\link{batch}} function.\cr
-immunoassay.options: \tab A list of all the model settings for the data files in the project folder - 
+    but it will be automatically created. For more information, see help on \code{\link{batch}} function.}
+  \item{immunoassay.options}{A list of all the model settings for the data files in the project folder - 
     used by the \code{\link{batch}} function. It is not required to start, but will be automatically created
     by this function. If the processing fails, the records in this list can be modified and re-used.
-    For more information, see help on \code{\link{batch}} function.\cr
-immunoassay.environment: \tab A pointer to the \code{environment} of the \code{\link{batch}} function, for
+    For more information, see help on \code{\link{batch}} function.}
+  \item{immunoassay.environment}{A pointer to the \code{environment} of the \code{\link{batch}} function, for
     use within the \code{Sweave} project report templates. It is automatically created by the 
     \code{\link{batch}} function. It's necesary due to known shortcoming of \code{Sweave} 
-    that can work in the global environment only. \cr
-    }
+    that can work in the global environment only.}
+  }
 }
-\author{Michal J. Figurski, PhD \email{mfigrs@gmail.com} of the Biomarker Research Laboratory, University of
-Pennsylvania, Philadelphia, PA.}
+\author{Michal J. Figurski, PhD \email{mfigrs@gmail.com} and Leslie M. Shaw of the Biomarker 
+    Research Laboratory, University of Pennsylvania, Philadelphia, PA.}
 \seealso{\code{\link{batch}}, \code{\link{read.multiplex}}, \code{\link{read.kits}} and \code{\link{sigfit}}.}
 \keyword{ package }
 \keyword{ immunoassay }
 \keyword{ batch processing }
 \keyword{ multiplex }
 \keyword{ sigmoidal }
-\keyword{ ADNI }
