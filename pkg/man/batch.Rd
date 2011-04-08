@@ -100,10 +100,15 @@ batch(path, subfolder = "", kit.file = NULL, analytes = "all",
     project-wide report. 
 }
 \value{
-This function returns a simple data frame that is the collection of results from all processed
-files. It does not contain any fit information - if fit information are required, some form
-of report must be called.
-}
+  This function returns a simple data frame that is the collection of results from all processed
+  files. It does not contain any fit information - if fit information are required, some form
+  of report must be called.\cr
+  In addition to the returned \code{data.frame} this function by default creates three global 
+  objects: the \code{immunoassay.coefs} list - a list of model coefficients for each fitted
+  run file, and each model type; the \code{immunoassay.options} - a list of model parameters 
+  for all run files; and \code{immunoassay.environment} - a pointer to the environment of the
+  \code{batch} function for use by the \code{Sweave} report templates.
+}  
 \note{
     Examples of LaTeX report templates from an example \code{\link{project}} are located in 
     the "templates" directory in the main package folder. See help for the example project for 
@@ -111,7 +116,7 @@ of report must be called.
 }
 \author{Michal J. Figurski, PhD \email{mfigrs@gmail.com} of the Biomarker Research Laboratory, 
 University of Pennsylvania, Philadelphia, PA.}
-\seealso{\code{\link{immunoassay} package}, \code{example \link{project}}, \code{\link{read.multiplex}}, 
+\seealso{\code{\link{immunoassay}}  package, example \code{\link{project}}, \code{\link{read.multiplex}}, 
     \code{\link{read.kits}} and \code{\link{sigfit}}.}
 \examples{\dontrun{
 
