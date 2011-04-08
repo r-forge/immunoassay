@@ -52,5 +52,21 @@ echo $contents; } ?>
     <img src="report1.png" border="1" alt="Example report page" />
 </div>
 
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+    var sc_project=6782378; 
+    var sc_invisible=1; 
+    var sc_security="1bd10c78"; 
+</script>
+<script type="text/javascript" src="http://www.statcounter.com/counter/counter_xhtml.js"></script>
+<noscript>
+    <div class="statcounter">
+        <a title="tumblr site counter" href="http://statcounter.com/tumblr/" class="statcounter">
+        <img class="statcounter" src="http://c.statcounter.com/6782378/0/1bd10c78/1/" alt="tumblr site counter" /></a>
+   </div>
+   <p> The R library 'immunoassay' for working with immunoassay data. </p>
+</noscript>
+<!-- End of StatCounter Code -->
+
 </body>
 </html>
