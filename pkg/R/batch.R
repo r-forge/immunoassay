@@ -3,12 +3,12 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
     model.options   = list(model="L.5", weights="sqrt", refit=0.2, use=1, stvals="adaptive"),
     project.options = list(report="text", template="short", trace=TRUE),
     correct.errors  = NULL) {
-
+        
     # Define internal functions        
     validate <- function(x) {
         # Get list of valid analytes
         v.a      = names(x)[match(paste("pred", attributes(x)$Analytes, sep="."), names(x))]
-        analytes = unlist(strsplit(v.a, split=".", fixed=TRUE))[seq(1, length(v.a),1)*2]
+        analytes = unlist(strsplit(v.a, split=".", fixed=T))[seq(1, length(v.a),1)*2]
         
         # Get lowest standard's name
         standards = unique(as.character(x$SPL[x$Type=="Standard"]))
@@ -23,19 +23,27 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
             
             # Criteria #2 - MFI must be greater than that of the lowest standard
             fit       = fits[[i1]]$data
-            use       = fit$use[unlist(strsplit(rownames(fit), " ", fixed=TRUE))[seq(1, nrow(fit)*2, 2)]==lastst]
-            mfith     = mean(x[x$SPL==lastst, paste("MFI", analytes[i1], sep=".")]*use, na.rm=TRUE)
+            use       = fit$use[unlist(strsplit(rownames(fit), " ", fixed=T))[seq(1, nrow(fit)*2, 2)]==lastst]
+            mfith     = mean(x[x$SPL==lastst, paste("MFI", analytes[i1], sep=".")]*use, na.rm=T)
             if (is.na(mfith)) {
                 pos   = match(lastst, standards)
                 if (pos>1) { 
                     lastst = standards[pos-1] 
-                    use    = fit$use[unlist(strsplit(rownames(fit), " ", fixed=TRUE))[seq(1, nrow(fit)*2, 2)]==lastst]
-                    mfith  = mean(x[x$SPL==lastst, paste("MFI", analytes[i1], sep=".")]*use, na.rm=TRUE)
+                    use    = fit$use[unlist(strsplit(rownames(fit), " ", fixed=T))[seq(1, nrow(fit)*2, 2)]==lastst]
+                    mfith  = mean(x[x$SPL==lastst, paste("MFI", analytes[i1], sep=".")]*use, na.rm=T)
                     }
                 }
             if (is.na(mfith)) { mfith = 0 }
             x[x$SPL!=lastst & !is.na(x[,paste("MFI", analytes[i1], sep=".")]) & 
                  x[,paste("MFI", analytes[i1], sep=".")] < mfith, v.a[i1]] = NA
+                 
+            # Recalculate CVs
+            for (i2 in unique(x$SPL)) {
+                bz = x[x$SPL %in% i2, v.a[i1]]
+                bzz = (sd(bz, na.rm=T)/mean(bz, na.rm=T) * 100)
+                if (is.na(bzz)) bzz = 0
+                x[x$SPL == i2, paste("pred", analytes[i1], "cv", sep=".")] = bzz
+                }  
                  
             # Criteria #3 - CV between replicates must be less than X%
             x[!(x$Type %in% c("Standard","QC")) & !is.na(x[,paste("pred", analytes[i1], "cv", sep=".")]) & 
@@ -62,7 +70,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
     
     # Check files if valid Immunoassay runs
     for (i1 in length(files):1) {
-        a     = scan(paste(ppath, files[i1], sep=""), what="character", sep=",", nlines=1, quiet=TRUE)
+        a     = scan(paste(ppath, files[i1], sep=""), what="character", sep=",", nlines=1, quiet=T)
         if (length(grep("xPONENT",a))==0 & length(grep(" IS",a))==0) files = files[-i1]
         if (project.options$trace) cat(".")
         }
@@ -72,7 +80,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
         cat("The following valid (supported) immunoassay run files found:\n")
         print(files)
         #cat("Process them? (y/n): ")
-        #input = scan(what="character", nmax=1, quiet=TRUE)
+        #input = scan(what="character", nmax=1, quiet=T)
         #if (!(input %in% c("y","Y","n","N"))) stop("Undefined choice.")
         #if (tolower(input)=="n") return()
         }
@@ -109,7 +117,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
     if (exists("immunoassay.coefs")) {
         
         cat("Data.frame \"immunoassay.coefs\" exists. Use it (u) or overwrite (o)?\n")
-        input=scan(what="character", nmax=1, quiet=TRUE)
+        input=scan(what="character", nmax=1, quiet=T)
         if (!(input %in% c("u","U","o","O"))) stop("Undefined choice.")
         if (tolower(input)=="o") immunoassay.coefs <<- l.coefs
         else l.coefs = immunoassay.coefs
@@ -160,7 +168,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
     if (exists("immunoassay.options")) {
         if (all(names(immunoassay.options$weights) == files)) {
             cat("Run options already defined in \"immunoassay.options\". Use it (u) or overwrite (o)?\n")
-            input = scan(what="character", nmax=1, quiet=TRUE)
+            input = scan(what="character", nmax=1, quiet=T)
             if (!(input %in% c("u","U","o","O"))) stop("Undefined choice.")
             if (tolower(input)=="o") immunoassay.options <<- model.options
             else model.options = immunoassay.options
@@ -191,7 +199,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
                       stvals  = model.options[["stvals"]][[i1]][[i2]])
             if (project.options$trace) cat("|")                      
             l.run$Kit   = attr(l.run, "Kit")[1]
-            l.run       = predict(zz, l.run, e.fit=TRUE)
+            l.run       = predict(zz, l.run, e.fit=T)
             fits[[i2]]  = zz
             }   
         
@@ -220,7 +228,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
                     cat("\nFile:", bz$file, "; Analyte:", bz$analyte[1],"\n")
                     cat("  + model:      ", bzm, "; weights: ", bzw, "\n")
                     cat("  + calibrators:", bz$data$use, "\n")
-                    if (!is.na(bz$stats)) {
+                    if (any(!is.na(bz$stats))) {
                         cat("  + SSE:        ", bz$stats$SSE[bz$stats$model==bzm & bz$stats$weights==bzw], "\n")
                         cat("  + R-squared:  ", bz$stats$r.sq[bz$stats$model==bzm & bz$stats$weights==bzw], "\n")
                         }
@@ -234,7 +242,8 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
             if (!file.exists(path=paste(path, "Tex", sep="/"))) dir.create(paste(path, "/Tex", sep=""))
             if (!file.exists(path=paste(path, "Tex/pdf", sep="/"))) dir.create(paste(path, "/Tex/pdf", sep=""))
             Sweave(file=paste(path, "/", project.options$template, ".run-report.r", sep=""), output=paste(path, "/Tex/", 
-                attr(l.run, "file"),".tex", sep=""), quiet=TRUE)
+                attr(l.run, "file"),".tex", sep=""), quiet=T)
+            if (project.options$trace) cat("*")
             }
         
         # Collect results
@@ -250,7 +259,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
         if (file.exists(paste(path, "/", project.options$template, ".project-report.r", sep=""))) {
             Sweave(file=paste(path, "/", project.options$template, ".project-report.r", sep=""), 
                 output=paste(path, "/Tex/", project.options$template, ".project-report.tex", sep=""), 
-                quiet=TRUE)
+                quiet=T)
             }
         else warning("Project report template file not found.")
         }
