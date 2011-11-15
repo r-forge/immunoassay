@@ -184,6 +184,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
     for (i1 in 1:N) {
         # Read data
         l.run      = read.multiplex(ppath, files[i1], analytes=analytes)
+        l.run$Date = attributes(l.run)$Date
         if (project.options$trace) cat(" + running \"",files[i1],"\" file ")
         if (!all(attr(l.run, "Analytes") %in% l.analytes)) stop("Run files in this folder have different analytes.")
         
@@ -198,7 +199,7 @@ batch <- function(path, subfolder="", kit.file=NULL, analytes="all",
                       refit   = model.options[["refit"]][[i1]][[i2]], 
                       stvals  = model.options[["stvals"]][[i1]][[i2]])
             if (project.options$trace) cat("|")                      
-            l.run$Kit   = attr(l.run, "Kit")[1]
+            l.run$Lot   = attr(l.run, "Lot")[1]
             l.run       = predict(zz, l.run, e.fit=T)
             fits[[i2]]  = zz
             }   

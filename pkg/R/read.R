@@ -95,7 +95,7 @@ read.multiplex <- function(path, file, analytes="all") {
         units = as.character(kit$Unit[kit$Analyte %in% analytes]) 
         qc.r  = as.data.frame(kit[kit$Analyte %in% analytes, c("Analyte","ConA.lo","ConA.hi","ConB.lo","ConB.hi")])
         }
-    else stop("Kit lot # not defined in \"immunoassay.kits\" data.frame.")
+    else stop("Lot # not defined in \"immunoassay.kits\" data.frame.")
     
     # Read in the tables
     z.MFI = read.table(filename, sep=",", fill=TRUE, skip=z.info$skip["MFI"], nrows=z.info$n, header=TRUE)
@@ -170,7 +170,7 @@ read.multiplex <- function(path, file, analytes="all") {
     return(structure(z.run, file = file,
         Assay      = c(Platform   = as.character(z.info$platform),
                        SN         = as.character(z.info$sn)),
-        Kit        = c(Lot        = as.character(z.info$lot), 
+        Lot        = c(Lot        = as.character(z.info$lot), 
                        N          = z.info$n), 
         Analytes   = as.character(analytes),
         Units      = as.character(units),

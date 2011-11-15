@@ -1,7 +1,7 @@
   
 project.means      <- function(x) {
-    minus = match(c("ID","Type","Loc","SPL","Kit"), names(x))
-    res  = aggregate(x[, -minus], by=list(ID=x$ID,Type=x$Type,SPL=x$SPL, Kit=x$Kit), FUN=mean, na.rm=TRUE)
+    minus = match(c("ID","Type","Loc","SPL","Lot"), names(x))
+    res  = aggregate(x[, -minus], by=list(ID=x$ID,Type=x$Type,SPL=x$SPL, Lot=x$Lot), FUN=mean, na.rm=TRUE)
     res  = res[res$Type!="Missing",]
     res  = res[order(res$ID, res$Type, res$SPL),]
     

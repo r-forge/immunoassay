@@ -3,7 +3,7 @@ plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
     z.analytes = attr(x, "Analytes")
     cls  = c("#ff225577","#00ff3377","#ffaa1f77","#0000ff77","#2222cc77","#44444477","#44444477")
     i1   = analyte
-    z.n  = as.numeric(attr(x, "Kit")[2])
+    z.n  = as.numeric(attr(x, "Lot")[2])
     ord  = as.numeric(unlist(strsplit(as.character(x$Loc), split="(", fixed=TRUE))[seq(1,nrow(x)*2,2)])
 
     # Define plot and reference matrices
@@ -91,8 +91,8 @@ plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
 
 print.ima <- function(x, ...) {
     cat("Immunoassay run file:", attr(x, "file"), "\n")
-    cat("Number of samples:", as.numeric(attr(x, "Kit")[2]), "\n")
-    cat("Kit Lot Number:", attr(x, "Kit")[1], "\n")
+    cat("Number of samples:", as.numeric(attr(x, "Lot")[2]), "\n")
+    cat("Reagents Lot Number:", attr(x, "Lot")[1], "\n")
     cat("Analytes:", attr(x,"Analytes"), "\n")
     cat("Background:", attr(x,"Background"), "\n")
     cat("Date processed:", attr(x,"Date"), "\n")
