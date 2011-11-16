@@ -19,7 +19,7 @@ read.multiplex <- function(path, file, analytes="all") {
         z.n= as.numeric(a[grep("Samples",a)[1]+1])*2
         z.sn= a[grep("SN",a)[1]+1]
         z.platform  = paste(a[grep("xPONENT",a)[1]], a[grep("xPONENT",a)[1]+2])
-        z.date= a[grep("Date",a)[1]+1]
+        z.date= a[grep("BatchStopTime",a)[1]+1]
         z.operator  = a[grep("Operator",a)[1]+1]
         z.lot       = as.character(a[grep("Standard1", a)[1]+2])
         
@@ -47,7 +47,7 @@ read.multiplex <- function(path, file, analytes="all") {
         z.n= as.numeric(a[grep("Samples",a)[1]+1])
         z.sn= a[grep("SN",a)[1]+1]
         z.platform  = a[grep("Program",a)[1]+1]
-        z.date= a[grep("Date",a)[1]+1]
+        z.date= a[grep("BatchStopTime",a)[1]+1]
         z.operator  = a[grep("Operator",a)[1]+1]
         z.lot       = as.character(a[grep("Assay Standard", a)[1]+1])
         
@@ -175,9 +175,8 @@ read.multiplex <- function(path, file, analytes="all") {
         Analytes   = as.character(analytes),
         Units      = as.character(units),
         qc.ranges  = qc.r,
-        Date       = as.character(z.info$date),
+        Date       = as.character(as.Date(as.character(z.info$date), format="%m/%d/%Y %H:%M")),
         Operator   = as.character(z.info$operator),
         Background = bkg,
         class      = c("ima","data.frame")))
 }
-
