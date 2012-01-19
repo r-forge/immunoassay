@@ -21,6 +21,7 @@ read.multiplex <- function(path, file, analytes="all") {
         z.platform  = paste(a[grep("xPONENT",a)[1]], a[grep("xPONENT",a)[1]+2])
         z.date= a[grep("BatchStopTime",a)[1]+1]
         z.operator  = a[grep("Operator",a)[1]+1]
+        z.session   = a[grep("Batch",a)[1]+1]
         z.lot       = as.character(a[grep("Standard1", a)[1]+2])
         
         # Find locations of MFI and COUNTS tables
@@ -37,7 +38,7 @@ read.multiplex <- function(path, file, analytes="all") {
         analytes = ll[(match("Sample",ll)+1):(match("Total Events",ll)-1)]
         
         # Finish
-        return(list(n=z.n,lot=z.lot,sn=z.sn,platform=z.platform,date=z.date,operator=z.operator,
+        return(list(n=z.n,lot=z.lot,sn=z.sn,ses=z.session,platform=z.platform,date=z.date,operator=z.operator,
             skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip), analytes=analytes))
     }
 
@@ -49,6 +50,7 @@ read.multiplex <- function(path, file, analytes="all") {
         z.platform  = a[grep("Program",a)[1]+1]
         z.date= a[grep("BatchStopTime",a)[1]+1]
         z.operator  = a[grep("Operator",a)[1]+1]
+        z.session   = a[grep("Session",a)[1]+1]
         z.lot       = as.character(a[grep("Assay Standard", a)[1]+1])
         
         # Find locations of MFI and COUNTS tables
@@ -65,7 +67,7 @@ read.multiplex <- function(path, file, analytes="all") {
         analytes = ll[(match("Sample",ll)+1):(match("Total Events",ll)-1)]
         
         # Finish
-        return(list(n=z.n,lot=z.lot,sn=z.sn,platform=z.platform,date=z.date,operator=z.operator,
+        return(list(n=z.n,lot=z.lot,sn=z.sn,ses=z.session,platform=z.platform,date=z.date,operator=z.operator,
             skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip), analytes=analytes))
     }
 
@@ -169,7 +171,8 @@ read.multiplex <- function(path, file, analytes="all") {
     # The end
     return(structure(z.run, file = file,
         Assay      = c(Platform   = as.character(z.info$platform),
-                       SN         = as.character(z.info$sn)),
+                       SN         = as.character(z.info$sn),
+                       Session    = as.character(z.info$ses)),
         Lot        = c(Lot        = as.character(z.info$lot), 
                        N          = z.info$n), 
         Analytes   = as.character(analytes),

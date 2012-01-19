@@ -91,6 +91,7 @@ plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
 
 print.ima <- function(x, ...) {
     cat("Immunoassay run file:", attr(x, "file"), "\n")
+    cat("Immunoassay Session/Batch:", attr(x, "Assay")[3], "\n")
     cat("Number of samples:", as.numeric(attr(x, "Lot")[2]), "\n")
     cat("Reagents Lot Number:", attr(x, "Lot")[1], "\n")
     cat("Analytes:", attr(x,"Analytes"), "\n")

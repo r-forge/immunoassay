@@ -26,7 +26,7 @@
     This function returns a structure of class \code{ima} composed of the following elements:
     \item{data}{\code{Data.frame} with the actual data.}
     \item{file}{File name.}
-    \item{Assay}{Character vector with the assay infromation (platform and S/N).}
+    \item{Assay}{Character vector with the assay infromation (platform, S/N and session name).}
     \item{Kit}{Character vector with kit information (Lot # and number of samples).}
     \item{Analytes}{Character vector of analyte names.}
     \item{Units}{Character vector of analyte units.}
