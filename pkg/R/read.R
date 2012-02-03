@@ -10,13 +10,21 @@ read.kits <- function(path, file) {
     return(immunoassay.kits)
 }
 
+
 read.multiplex <- function(path, file, analytes="all") {
 
-    # Function definitions
+    # Function definitions    
     extract.xP <- function(filename) {
         # Read run info
         a= scan(filename, what="character", sep=",", quiet=TRUE)
         z.n= as.numeric(a[grep("Samples",a)[1]+1])*2
+        cnt         = 1
+        repeat {
+            z.n     = as.numeric(a[grep("Samples",a)[cnt]+1])*2
+            if (!is.na(z.n)) break;
+            cnt     = cnt+1
+        }
+
         z.sn= a[grep("SN",a)[1]+1]
         z.platform  = paste(a[grep("xPONENT",a)[1]], a[grep("xPONENT",a)[1]+2])
         z.date= a[grep("BatchStopTime",a)[1]+1]
@@ -24,12 +32,16 @@ read.multiplex <- function(path, file, analytes="all") {
         z.session   = a[grep("Batch",a)[1]+1]
         z.lot       = as.character(a[grep("Standard1", a)[1]+2])
         
-        # Find locations of MFI and COUNTS tables
+        # Find locations of RESULTS, MFI, COUNTS and Calibrators tables
         for (i1 in 1:1000){
             a = scan(filename, what="character", sep=",", skip=i1, nlines=1, quiet=TRUE)
             if (length(a)>0) {
                 if (a[1]=="DataType:" & a[2]=="Median") { z.MFI.skip=i1+1 }
-                if (a[1]=="DataType:" & a[2]=="Count")  { z.CTS.skip=i1+1 ; break }
+                if (a[1]=="DataType:" & a[2]=="Count")  { z.CTS.skip=i1+1 }
+                if (a[1]=="DataType:" & a[2]=="Result") { z.RES.skip=i1+1 }
+                if (a[1]=="DataType:" & a[2]=="Standard Expected Concentration") { z.CAL.skip=i1+1 }
+                if (a[1]=="DataType:" & a[2]=="Control Range - Low")  { z.QCL.skip=i1+1 }
+                if (a[1]=="DataType:" & a[2]=="Control Range - High") { z.QCH.skip=i1+1; break }
                 }
             }
             
@@ -39,14 +51,22 @@ read.multiplex <- function(path, file, analytes="all") {
         
         # Finish
         return(list(n=z.n,lot=z.lot,sn=z.sn,ses=z.session,platform=z.platform,date=z.date,operator=z.operator,
-            skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip), analytes=analytes))
+            skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip, RES=z.RES.skip, CAL=z.CAL.skip, QCL=z.QCL.skip,
+            QCH=z.QCH.skip), analytes=analytes))
     }
 
     extract.is <- function(filename) {
         # Read run info
         a= scan(filename, what="character", sep=",", quiet=TRUE)
-        z.n= as.numeric(a[grep("Samples",a)[1]+1])
-        z.sn= a[grep("SN",a)[1]+1]
+        
+        # Word "Samples" count
+        cnt         = 1
+        repeat {
+            z.n     = as.numeric(a[grep("Samples",a)[cnt]+1])
+            if (!is.na(z.n)) break;
+            cnt     = cnt+1
+        }
+        z.sn        = a[grep("SN",a)[1]+1]
         z.platform  = a[grep("Program",a)[1]+1]
         z.date= a[grep("BatchStopTime",a)[1]+1]
         z.operator  = a[grep("Operator",a)[1]+1]
@@ -58,6 +78,7 @@ read.multiplex <- function(path, file, analytes="all") {
             a = scan(filename, what="character", sep=",", skip=i1, nlines=1, quiet=TRUE)
             if (length(a)>0) {
                 if (a[1]=="DataType:" & a[2]=="Median") { z.MFI.skip=i1+1 }
+                if (a[1]=="DataType:" & a[2]=="Result") { z.RES.skip=i1+1 }
                 if (a[1]=="DataType:" & a[2]=="Count")  { z.CTS.skip=i1+1; break }
                 }
             }
@@ -68,7 +89,7 @@ read.multiplex <- function(path, file, analytes="all") {
         
         # Finish
         return(list(n=z.n,lot=z.lot,sn=z.sn,ses=z.session,platform=z.platform,date=z.date,operator=z.operator,
-            skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip), analytes=analytes))
+            skip=c(MFI=z.MFI.skip, CTS=z.CTS.skip, RES=z.RES.skip), analytes=analytes))
     }
 
     # Process path and file name
