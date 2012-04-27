@@ -1,22 +1,25 @@
 \name{check}
 \alias{check}
 \title{
-Function to examine the sigmoidal fit done by "sigfit".
+Function to examine the sigmoidal fit and provide goodness-of-fit measures.
 }
 \description{
 This is a helper function that returns several error measurement quantities that serve to 
-help evaluate models fitted by the \code{\link{sigfit}} function.
+help evaluate the logistic 4-PL and 5-PL models. The model to be checked can either come 
+directly from the immunoassay data file or be fitted by the \code{\link{sigfit}} function.
 }
 \usage{
-check(x, ...)
+check(x, analyte, ...)
 }
 \arguments{
-  \item{x}{An object of class \code{sigfit}.}
+  \item{x}{An object of class \code{sigfit} or \code{ima}.}
+  \item{analyte}{Character. The name of the analyte to be evaluated in the \code{class "ima"} 
+                 data frame.}
   \item{\dots}{Currently ignored.}
 }
 \details{
-This function is used internally by the \code{\link{batch}} and \code{\link{sigfit}} functions
-to evaluate models. 
+This function is used internally by the \code{\link{batch}}, \code{\link{sigfit}}, 
+\code{\link{summary.ima}} and \code{\link{summary.sigfit}} functions to evaluate models. 
 }
 \value{
     \item{St.error }{Mean and median value of error of fit to Standards (calibrators) 
@@ -28,15 +31,16 @@ to evaluate models.
     \item{Sigma}{Residual sum of squares from the fitted model in the measurement scale. This
                  can be heavily affected by weighting.}
     \item{Syx}{The Sy|x error value for the fit - in the measurement scale.}
-    \item{r.squared}{R squared of the fit in the measurement scale. Keep in mind that this
-                     is the \code{nls} fit, and therefore, in certain situations, this can be
-                     a negative value.}
+    \item{r.squared}{R squared of the fit in the measurement scale. For the \code{nls} 
+                fits this can be a negative value in certain situations.}
 }
 \author{Michal J. Figurski, PhD \email{mfigrs@gmail.com}}
 \seealso{\code{\link{sigfit}}, \code{\link{predict.sigfit}}}
 \examples{
     \dontrun{
-    run = read.luminex("your-path-here")
+    run = read.multiplex("your-path-here")
+    check(run)
+    
     fit = sigfit(run)
     check(fit)
     }

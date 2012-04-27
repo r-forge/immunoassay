@@ -1,6 +1,9 @@
 check <- function(x, ...) {
     z = class(x)[1]
-    if (z=="sigfit") check.sigfit(x, ...)
+    if (z %in% c("sigfit","ima")) {
+        if (z=="sigfit") check.sigfit(x, ...)
+        if (z=="ima") check.ima(x, ...)
+    }
     else stop("Method \"check\" not defined for object of class: \"",z,"\".")
 }
 
@@ -34,4 +37,32 @@ check.sigfit <- function(x) {
     rse         = sqrt(1/(nrow(n.fit[n.fit$Type=="Standard",])-length(coef(x$fit))) * sse)
     return(list(St.error=st.err, QC.error=qc.err, SSE=sse, sigma=rse, Syx=syx, r.squared=rsq))
 }
+
+check.ima <- function(x, analyte) {
+    d           = as.data.frame(x[x$Type %in% c("Standard","QC"),])
+    d           = d[, c("Type", "SPL", paste(c("RES","MFI","conc"), analyte, sep="."))]
+    names(d)    = c("Type","SPL","preds","MFI","value")
+
+    d$error     = abs((d$preds - d$value) / d$value * 100)
+
+    n.fit       = d
+    cals        = unique(n.fit$SPL[n.fit$Type=="Standard"])
+    st.err      = c(median = median(abs(n.fit$error[n.fit$Type=="Standard"]), na.rm=TRUE),
+                    mean   = mean(abs(n.fit$error[n.fit$Type=="Standard"]), na.rm=TRUE))
+    qc.err      = c(median = median(abs(n.fit$error[n.fit$Type=="QC"]), na.rm=TRUE),
+                    mean   = mean(abs(n.fit$error[n.fit$Type=="QC"]), na.rm=TRUE))
+    sse         = sum(((n.fit$error[n.fit$SPL %in% cals]))^2, na.rm=TRUE)
+    sse_2       = sum((n.fit$error[n.fit$SPL %in% cals[2:length(cals)-1]])^2, na.rm=TRUE)
+    sse_3       = sum((n.fit$error[n.fit$SPL %in% cals[2:length(cals)-2]])^2, na.rm=TRUE)
+    rsq         = as.vector(1 - sse / sum((n.fit$preds[n.fit$SPL %in% cals] - 
+                  mean(n.fit$preds[n.fit$SPL %in% cals], na.rm=TRUE))^2, na.rm=TRUE))
+    rsq_2       = as.vector(1 - sse_2 / sum((n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-1]] - 
+                  mean(n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-1]], na.rm=TRUE))^2, na.rm=TRUE))
+    rsq_3       = as.vector(1 - sse_3 / sum((n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-2]] - 
+                  mean(n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-2]], na.rm=TRUE))^2, na.rm=TRUE))
+    syx         = "not available"
+    rse         = sqrt(1/(nrow(n.fit[n.fit$Type=="Standard",])- nrow(attr(a, "coefs"))) * sse)
+    return(list(St.error=st.err, QC.error=qc.err, SSE=sse, sigma=rse, Syx=syx, r.squared=rsq))
+}
+
 

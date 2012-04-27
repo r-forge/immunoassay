@@ -1,0 +1,15 @@
+Version 0.4
+
+o Function 'read.multiplex()' was thoroughly updated. In addition to CTS 
+  and MFI tables it can now read results table. For xPONENT files it now 
+  reads also the nominal concentrations of standards and QCs straight from 
+  the file, so the 'immunoassay.kits' data.frame is no longer required for 
+  this type of data (it's still required for "IS" data). In addition, it 
+  reads the fit information (coefficients, r-squared, etc).
+  
+o The 'check()' function is now extended to work for 'ima' objects.
+  
+o Methods for 'ima' class updated. New 'summary()' method added that displays
+  fit summary for the loaded run data - utilizing the updated 'check()' function.
+  'plot()' and 'print()' methods also updated to work with the new structure
+  of the 'ima' class objects.

@@ -1,50 +1,60 @@
-plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
+plot.ima    <- function(x, what="mfi", type="precision", analyte=1, ref=0.25, cts.scale=350, ...) {
+    if (!(tolower(what) %in% c("cts","mfi","res","pred"))) stop("Unsupported result type.")
+    if (!(tolower(type) %in% c("precision","accuracy")))  stop("Unsupported plot type.")
+ 
+    # Utility functions
+    CV <- function(dat, column, ids) {
+        CV  = aggregate(dat[,column], by = ids, FUN= function(x) { sd(x, na.rm=T)/mean(x, na.rm=T)*100 } )
+        return(CV)
+    }
+    
     # Basic definitions
     z.analytes = attr(x, "Analytes")
     cls  = c("#ff225577","#00ff3377","#ffaa1f77","#0000ff77","#2222cc77","#44444477","#44444477")
     i1   = analyte
     z.n  = as.numeric(attr(x, "Lot")[2])
-    ord  = as.numeric(unlist(strsplit(as.character(x$Loc), split="(", fixed=TRUE))[seq(1,nrow(x)*2,2)])
-
+    ord  = as.numeric(matrix(unlist(strsplit(as.character(x$Loc),"(", fixed=T)), ncol=2, byrow=T)[,1])
+    
+    # Error checks
+    if (z.n>96) stop("Unsupported plate layout")
+    if (what=="res" & length(grep(paste("RES.", z.analytes[i1], sep=""), names(a)))!=1) stop("Results are missing for analyte ", z.analytes[i1])
+    if (what=="pred" & length(grep(paste("pred.", z.analytes[i1], sep=""), names(a)))!=1) stop("Predictions are missing for analyte ", z.analytes[i1])
+    if (what=="mfi" & type!="precision") stop("MFI plot can only be of type \"precision\"")
+    
+    # Conversions
+    if (tolower(what)!="pred") what=toupper(what)
+    if (what=="CTS") type=""
+    
     # Define plot and reference matrices
-    if (tolower(type)=="cts") {
-        mtx = matrix(x[order(ord), paste("CTS",z.analytes[i1], sep=".")], nrow=8, ncol=12, byrow=FALSE)
+    if (what=="CTS") {
+        mtx = matrix(x[order(ord), paste(what, z.analytes[i1], sep=".")], nrow=8, ncol=12, byrow=FALSE)
         mtx = mtx/cts.scale
         mtl = paste("Counts of", z.analytes[i1])
-        xl  = "Reference circle: 20 counts"
-        }   
-    if (tolower(type)=="cv") {
-        if (!is.na(match(paste("pred", z.analytes[i1], sep="."), names(x)))) {
-            if (is.na(match(paste("pred", z.analytes[i1], "cv", sep="."), names(x)))) {
-                IDx = unique(paste(x$ID, x$SPL))
-                for (i2 in IDx) {
-                    bz = x[paste(x$ID, x$SPL) %in% i2, paste("pred", z.analytes[i1], sep=".")]
-                    x[paste(x$ID, x$SPL) == i2, paste("pred", z.analytes[i1], "cv", sep=".")] =
-                        sd(bz, na.rm=TRUE)/mean(bz, na.rm=TRUE) * 100
-                    }  
+        xl  = "Reference circle: 50 counts"
+    } else {
+        if (tolower(type)=="precision") {
+            if (!is.na(match(paste(what, z.analytes[i1], sep="."), names(x)))) {
+                if (is.na(match(paste(what, z.analytes[i1], "cv", sep="."), names(x)))) {
+                    bz = CV(x, paste(what, z.analytes[i1], sep="."), list(x$SPL))
+                    names(bz)[2] = paste(what, z.analytes[i1], "cv", sep=".")
+                    x  = merge(x, bz, by.x="SPL", by.y="Group.1", all.x=T)
                 }
-            mtx = matrix(x[order(ord), paste("pred", z.analytes[i1], "cv", sep=".")], ncol=12, byrow=FALSE)
-            mtl = paste("Precision of results for", z.analytes[i1])
+                ord  = as.numeric(matrix(unlist(strsplit(as.character(x$Loc),"(", fixed=T)), ncol=2, byrow=T)[,1])
+                mtx = matrix(x[order(ord), paste(what, z.analytes[i1], "cv", sep=".")], ncol=12, byrow=FALSE)
+                mtl = paste("Precision of", ifelse(what=="RES","results", ifelse(what=="pred", "predictions", what) ),"for", z.analytes[i1])
             }
-        else {
-            CV  = aggregate(x[,paste("MFI",z.analytes[i1], sep=".")], 
-                  by = list(ID=x$ID,Type=x$Type,SPL=x$SPL), FUN=cv)
-            CV  = merge(x, CV,  by=c("ID","Type","SPL"), all=TRUE)
-            mtx = matrix(CV[order(ord), "x"], ncol=12, byrow=FALSE)
-            mtl = paste("Precision of MFI for", z.analytes[i1])
-            }
-        mtx = mtx/100
-        xl  = paste("Reference circle: ", ref*100,"% CV", sep="")
+            mtx = mtx/100
+            xl  = paste("Reference circle: ", ref*100,"% CV", sep="")
         }
-    if (tolower(type)=="accuracy") {
-        if (!is.na(match(paste("pred", z.analytes[i1], sep="."), names(x)))) {
-            mtx = matrix(abs(1 - x[order(ord), paste("pred", z.analytes[i1], sep=".")] / 
-            x[order(ord), paste("conc", z.analytes[i1], sep=".")]), ncol=12, byrow=FALSE)
-            mtl = paste("Accuracy of results for", z.analytes[i1])
-            }
-        else stop("Accuracy cannot be derived from an object without predictions")
-        xl  = paste("Reference circle: ", ref*100,"% deviation from set value", sep="")
+        if (tolower(type)=="accuracy") {
+            if (!is.na(match(paste(what, z.analytes[i1], sep="."), names(x)))) {
+                mtx = matrix(abs(1 - x[order(ord), paste(what, z.analytes[i1], sep=".")] / 
+                x[order(ord), paste("conc", z.analytes[i1], sep=".")]), ncol=12, byrow=FALSE)
+                mtl = paste("Accuracy of", ifelse(what=="RES","results", "predictions"),"for", z.analytes[i1])
+                }
+            xl  = paste("Reference circle: ", ref*100,"% deviation from nominal value", sep="")
         }
+    }
     if (z.n<96) { mtx[(z.n+1):96] = NA }
     if (ref<=0) { xl="" }
     mtx[tolower(x[order(ord),"SPL"])=="background"] = NA
@@ -53,7 +63,7 @@ plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
     # Make plot
     {
     plot(0,0, type="n", xlab="", ylab="", xlim=c(1,12), ylim=c(0.75,8.25), axes=FALSE, ...)
-    mtext(xl, side=1, line=0, adj=0.5)
+    mtext(xl, side=1, line=0.3, adj=0.5)
     symbols(rep(c(1:12), each=8), rep(8:1, 12), circles=as.vector(mtx), inches=FALSE, 
         bg=cls[as.numeric(x[order(ord),"Type"])], ylab="", xlab="", add=TRUE, xpd=NA)
     axis(3, at=1:12, labels=1:12, line=-0.5, lwd=0, lwd.ticks=0, col.ticks="gray")
@@ -64,32 +74,32 @@ plot.ima <- function(x, type="cts", analyte=1, ref=0.25, cts.scale=350, ...) {
     
     # Plot reference circles
     if (ref>0) {
-        if (tolower(type)=="cts") { mtx = sqrt(matrix(rep(20/cts.scale,96), ncol=12, byrow=FALSE)/pi) }
+        if (what=="CTS") { mtx = sqrt(matrix(rep(50/cts.scale,96), ncol=12, byrow=FALSE)/pi) }
         else { mtx = sqrt(matrix(rep(ref,96), ncol=12, byrow=FALSE)/pi) }
         if (z.n<96) { mtx[(z.n+1):96] = NA }
         symbols(rep(c(1:12), each=8), rep(8:1, 12), circles=as.vector(mtx), inches=FALSE, 
             fg="#55555555", ylab="", xlab="", add=TRUE, xpd=NA)
-        }
-    if (!is.na(match(paste("pred", z.analytes[i1], sep="."), names(x)))) {
-        if (tolower(type)=="cv") { 
-            mtx = matrix(x[order(ord), paste("pred", z.analytes[i1], "cv", sep=".")], ncol=12, byrow=FALSE) 
+    }
+    if (what!="cts" & !is.na(match(paste(what, z.analytes[i1], sep="."), names(x)))) {
+        if (tolower(type)=="precision") { 
+            mtx = matrix(x[order(ord), paste(what, z.analytes[i1], "cv", sep=".")], ncol=12, byrow=FALSE) 
             mtx[!is.na(mtx) & mtx>ref*100] = NA
             mtext("\"X\" - exceeding the limit or missing" , side=1, line=1, adj=0.5, cex=0.65)
-            }
+        }
         if (tolower(type)=="accuracy") { 
             mtx = matrix(x[order(ord), paste("conc", z.analytes[i1], sep=".")], ncol=12, byrow=FALSE) 
             mtx[c(1,9)] = NA
             mtext("\"X\" - not evaluated" , side=1, line=1, adj=0.5, cex=0.65)
-            }
+        }
         mtx[!is.na(mtx)] = 0
         mtx[is.na(mtx)]  = 4
         mtx[mtx==0]  = NA 
         if (z.n<96) { mtx[(z.n+1):96] = NA }
         points(rep(c(1:12), each=8), rep(8:1, 12), pch=as.vector(mtx), cex=2)
-        }
+    }
 }
 
-print.ima <- function(x, ...) {
+print.ima   <- function(x, ...) {
     cat("Immunoassay run file:", attr(x, "file"), "\n")
     cat("Immunoassay Session/Batch:", attr(x, "Assay")[3], "\n")
     cat("Number of samples:", as.numeric(attr(x, "Lot")[2]), "\n")
@@ -101,7 +111,84 @@ print.ima <- function(x, ...) {
     cat("By:", attr(x,"Operator"), "\n\n")
     d = as.data.frame(x)
     rownames(d) = paste(d$SPL, " (", unlist(strsplit(as.character(d$Loc), split="(", fixed=TRUE))[seq(2,nrow(d)*2,2)], sep="")
-    print(d[,-match(c("SPL","Loc","ID"), names(d))])
+    print(d[,-match(c("SPL","Loc","ID"), names(d))], ...)
 }
 
+predict.ima <- function(x, analyte=1, newdata=NULL) {
+    if (length(grep("xPONENT", attr(x, "Assay")[1], fixed=T))!=1) stop("Fit data not available")
+    if (analyte>length(attr(x,"Analytes"))) stop("Analyte does not exist")
+    
+    inv <- function(y, a, b, c, d, f) {
+        c * (((b-a)/(y-a))^(1/f)-1)^(1/d)
+    }
 
+    an      = attr(x, "Analytes")[analyte]
+    coefs   = as.numeric(t(attr(x, "coefs"))[an,])
+    
+    if (is.null(newdata)) {
+        preds = inv(x[,paste("MFI",an, sep=".")], a=coefs[1], b=coefs[2], c=coefs[3], d=coefs[4], f=coefs[5])
+    } else {
+        preds = inv(newdata, a=coefs[1], b=coefs[2], c=coefs[3], d=coefs[4], f=coefs[5])
+    }
+    
+    return(preds)
+}
+
+summary.ima <- function(x, analyte="all", result="res", type="fit") {
+    if (!(tolower(result) %in% c("res","pred"))) stop("Unsupported result type")
+    if (!(tolower(type)   %in% c("fit","data"))) stop("Unsupported summary type")
+    if (!is.numeric(analyte) & analyte!="all") stop("Incorrect analyte selected.")
+    
+    cat("Immunoassay run file:", attr(x, "file"), "\n")
+    cat("Immunoassay Session/Batch:", attr(x, "Assay")[3], "\n")
+    cat("Number of samples:", as.numeric(attr(x, "Lot")[2]), "\n")
+    cat("Reagents Lot Number:", attr(x, "Lot")[1], "\n")
+    cat("Analytes:", attr(x,"Analytes"), "\n")
+    cat("Background:", attr(x,"Background"), "\n")
+    cat("Date processed:", attr(x,"Date"), "\n")
+    cat("On:", attr(x,"Assay")[1], "  S/N:", attr(x,"Assay")[2], "\n")
+    cat("By:", attr(x,"Operator"), "\n\n")
+
+    if (!is.numeric(analyte) & analyte=="all") an = attr(x, "Analytes")
+    else an = attr(x, "Analytes")[analyte]
+    
+    if (type=="fit") {
+        if (length(grep("xPONENT", attr(x, "Assay")[1], fixed=T))==1) { 
+            a1 = unlist(attr(x, "fit")$fit)
+            
+            tab1 = cbind(levels(a1)[a1], unclass(attr(x, "fit")$r2))
+            rownames(tab1) = an
+            colnames(tab1) = c("Fit type","R squared")
+            cat("Fitting summary:\n")
+            print(tab1, quote=FALSE)
+            tab2 = t(attr(x, "coefs"))[(1:length(an)+1),]
+            colnames(tab2) = c("a","b","c","d","f")
+            cat("\nCoefficients:\n")
+            print(tab2, quote="FALSE")
+            cat("\n")
+        } else {
+            cat("\nFit data not available\n\n")
+        }
+
+        if (tolower(result)=="res") result="RES" else result="pred"
+        d = as.data.frame(x[x$Type %in% c("Standard","QC"), c("SPL","Loc",paste(rep(c("MFI", result, "conc"), each=length(an)), an, sep="."))])
+        d$Loc = paste("(",matrix(unlist(strsplit(as.character(d$Loc), ",", fixed=T)), ncol=2, byrow=T)[,2], sep="")
+
+        for (i1 in an) {          
+            dd   = d[, paste(c("MFI","conc",result), i1, sep=".")]
+            colnames(dd) = c("MFI","value","result")
+            rownames(dd) = paste(d$SPL,d$Loc)
+            dd$accuracy  = paste(formatC((dd$result-dd$value)/dd$value * 100, format="f", digits=2), "%", sep="")
+            dd$result    = round(dd$result, 2)
+            pr           = aggregate(dd$result, list(d$SPL), FUN = function(x) { sd(x, na.rm=T)/mean(x, na.rm=T)*100 })
+            dd$precision = ""
+            dd[match(pr$Group.1, d$SPL), "precision"] = paste(formatC(pr$x, format="f", digits=2), "%", sep="")
+
+            cat("Accuracy & precision of Standards and QCs for ", i1,":\n", sep="")
+            print(dd)
+            cat("\n")
+        }
+    } else {
+        summary(as.data.frame(x))
+    }
+}
