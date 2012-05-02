@@ -12,9 +12,9 @@
     \code{"pred"}. Determines what type of data will be plotted: \code{"cts"} - counts, 
     \code{"mfi"} - MFI, \code{"res"} - results loaded from the data file, \code{"pred"}
     - results obtained from fitting by \code{\link{sigfit}} funtion. Defaults to 
-    \code{"mfi"}. 
+    \code{"mfi"}.}
   \item{type}{Character. This can be either \code{"precision"} - the between-replicate 
-    precision, or \code{"accuracy"} - displayed only for samples with nominal concentrations.
+    precision, or \code{"accuracy"} - displayed only for samples with nominal concentrations.}
   \item{analyte}{Integer of range from 1 to the number of analytes. Determines which analyte will be plotted.}
   \item{ref}{Numeric in range from 0 to 1, determines the size of the reference circle for type \code{"cts"} and 
     \code{"accuracy"} plots. The default is 0.25 (25\%). Use \code{ref=0} to suppress plotting of reference circles.}

@@ -17,8 +17,8 @@ plot.ima    <- function(x, what="mfi", type="precision", analyte=1, ref=0.25, ct
     
     # Error checks
     if (z.n>96) stop("Unsupported plate layout")
-    if (what=="res" & length(grep(paste("RES.", z.analytes[i1], sep=""), names(a)))!=1) stop("Results are missing for analyte ", z.analytes[i1])
-    if (what=="pred" & length(grep(paste("pred.", z.analytes[i1], sep=""), names(a)))!=1) stop("Predictions are missing for analyte ", z.analytes[i1])
+    if (what=="res" & length(grep(paste("RES.", z.analytes[i1], sep=""), names(x)))!=1) stop("Results are missing for analyte ", z.analytes[i1])
+    if (what=="pred" & length(grep(paste("pred.", z.analytes[i1], sep=""), names(x)))!=1) stop("Predictions are missing for analyte ", z.analytes[i1])
     if (what=="mfi" & type!="precision") stop("MFI plot can only be of type \"precision\"")
     
     # Conversions
@@ -114,19 +114,19 @@ print.ima   <- function(x, ...) {
     print(d[,-match(c("SPL","Loc","ID"), names(d))], ...)
 }
 
-predict.ima <- function(x, analyte=1, newdata=NULL) {
-    if (length(grep("xPONENT", attr(x, "Assay")[1], fixed=T))!=1) stop("Fit data not available")
-    if (analyte>length(attr(x,"Analytes"))) stop("Analyte does not exist")
+predict.ima <- function(object, analyte=1, newdata=NULL, ...) {
+    if (length(grep("xPONENT", attr(object, "Assay")[1], fixed=T))!=1) stop("Fit data not available")
+    if (analyte>length(attr(object,"Analytes"))) stop("Analyte does not exist")
     
     inv <- function(y, a, b, c, d, f) {
         c * (((b-a)/(y-a))^(1/f)-1)^(1/d)
     }
 
-    an      = attr(x, "Analytes")[analyte]
-    coefs   = as.numeric(t(attr(x, "coefs"))[an,])
+    an      = attr(object, "Analytes")[analyte]
+    coefs   = as.numeric(t(attr(object, "coefs"))[an,])
     
     if (is.null(newdata)) {
-        preds = inv(x[,paste("MFI",an, sep=".")], a=coefs[1], b=coefs[2], c=coefs[3], d=coefs[4], f=coefs[5])
+        preds = inv(object[,paste("MFI",an, sep=".")], a=coefs[1], b=coefs[2], c=coefs[3], d=coefs[4], f=coefs[5])
     } else {
         preds = inv(newdata, a=coefs[1], b=coefs[2], c=coefs[3], d=coefs[4], f=coefs[5])
     }
@@ -134,34 +134,34 @@ predict.ima <- function(x, analyte=1, newdata=NULL) {
     return(preds)
 }
 
-summary.ima <- function(x, analyte="all", result="res", type="fit") {
+summary.ima <- function(object, analyte="all", result="res", type="fit", ...) {
     if (!(tolower(result) %in% c("res","pred"))) stop("Unsupported result type")
     if (!(tolower(type)   %in% c("fit","data"))) stop("Unsupported summary type")
     if (!is.numeric(analyte) & analyte!="all") stop("Incorrect analyte selected.")
     
-    cat("Immunoassay run file:", attr(x, "file"), "\n")
-    cat("Immunoassay Session/Batch:", attr(x, "Assay")[3], "\n")
-    cat("Number of samples:", as.numeric(attr(x, "Lot")[2]), "\n")
-    cat("Reagents Lot Number:", attr(x, "Lot")[1], "\n")
-    cat("Analytes:", attr(x,"Analytes"), "\n")
-    cat("Background:", attr(x,"Background"), "\n")
-    cat("Date processed:", attr(x,"Date"), "\n")
-    cat("On:", attr(x,"Assay")[1], "  S/N:", attr(x,"Assay")[2], "\n")
-    cat("By:", attr(x,"Operator"), "\n\n")
+    cat("Immunoassay run file:", attr(object, "file"), "\n")
+    cat("Immunoassay Session/Batch:", attr(object, "Assay")[3], "\n")
+    cat("Number of samples:", as.numeric(attr(object, "Lot")[2]), "\n")
+    cat("Reagents Lot Number:", attr(object, "Lot")[1], "\n")
+    cat("Analytes:", attr(object,"Analytes"), "\n")
+    cat("Background:", attr(object,"Background"), "\n")
+    cat("Date processed:", attr(object,"Date"), "\n")
+    cat("On:", attr(object,"Assay")[1], "  S/N:", attr(object,"Assay")[2], "\n")
+    cat("By:", attr(object,"Operator"), "\n\n")
 
-    if (!is.numeric(analyte) & analyte=="all") an = attr(x, "Analytes")
-    else an = attr(x, "Analytes")[analyte]
+    if (!is.numeric(analyte) & analyte=="all") an = attr(object, "Analytes")
+    else an = attr(object, "Analytes")[analyte]
     
     if (type=="fit") {
-        if (length(grep("xPONENT", attr(x, "Assay")[1], fixed=T))==1) { 
-            a1 = unlist(attr(x, "fit")$fit)
+        if (length(grep("xPONENT", attr(object, "Assay")[1], fixed=T))==1) { 
+            a1 = unlist(attr(object, "fit")$fit)
             
-            tab1 = cbind(levels(a1)[a1], unclass(attr(x, "fit")$r2))
+            tab1 = cbind(levels(a1)[a1], unclass(attr(object, "fit")$r2))
             rownames(tab1) = an
             colnames(tab1) = c("Fit type","R squared")
             cat("Fitting summary:\n")
             print(tab1, quote=FALSE)
-            tab2 = t(attr(x, "coefs"))[(1:length(an)+1),]
+            tab2 = t(attr(object, "coefs"))[(1:length(an)+1),]
             colnames(tab2) = c("a","b","c","d","f")
             cat("\nCoefficients:\n")
             print(tab2, quote="FALSE")
@@ -171,7 +171,7 @@ summary.ima <- function(x, analyte="all", result="res", type="fit") {
         }
 
         if (tolower(result)=="res") result="RES" else result="pred"
-        d = as.data.frame(x[x$Type %in% c("Standard","QC"), c("SPL","Loc",paste(rep(c("MFI", result, "conc"), each=length(an)), an, sep="."))])
+        d = as.data.frame(object[object$Type %in% c("Standard","QC"), c("SPL","Loc",paste(rep(c("MFI", result, "conc"), each=length(an)), an, sep="."))])
         d$Loc = paste("(",matrix(unlist(strsplit(as.character(d$Loc), ",", fixed=T)), ncol=2, byrow=T)[,2], sep="")
 
         for (i1 in an) {          
@@ -189,6 +189,6 @@ summary.ima <- function(x, analyte="all", result="res", type="fit") {
             cat("\n")
         }
     } else {
-        summary(as.data.frame(x))
+        summary(as.data.frame(object))
     }
 }

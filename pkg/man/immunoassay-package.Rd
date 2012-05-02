@@ -22,8 +22,8 @@ amounts of data (projects of 70 and more runs) and creation of nice reports and 
 \tabular{ll}{
 Package: \tab immunoassay\cr
 Type: \tab Package\cr
-Version: \tab 0.3\cr
-Date: \tab 2011-03-28\cr
+Version: \tab 0.41\cr
+Date: \tab 2011-05-02\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }

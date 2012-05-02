@@ -1,3 +1,10 @@
+Version 0.41
+
+o Fixed numerous bugs in documentation and in some functions. 
+
+o Added NAMESPACE file.
+
+
 Version 0.4
 
 o Function 'read.multiplex()' was thoroughly updated. In addition to CTS 

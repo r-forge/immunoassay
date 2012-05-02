@@ -1,8 +1,8 @@
-check <- function(x, ...) {
+check <- function(x, analyte, ...) {
     z = class(x)[1]
     if (z %in% c("sigfit","ima")) {
         if (z=="sigfit") check.sigfit(x, ...)
-        if (z=="ima") check.ima(x, ...)
+        if (z=="ima") check.ima(x, analyte, ...)
     }
     else stop("Method \"check\" not defined for object of class: \"",z,"\".")
 }
@@ -61,7 +61,7 @@ check.ima <- function(x, analyte) {
     rsq_3       = as.vector(1 - sse_3 / sum((n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-2]] - 
                   mean(n.fit$preds[n.fit$SPL %in% cals[2:length(cals)-2]], na.rm=TRUE))^2, na.rm=TRUE))
     syx         = "not available"
-    rse         = sqrt(1/(nrow(n.fit[n.fit$Type=="Standard",])- nrow(attr(a, "coefs"))) * sse)
+    rse         = sqrt(1/(nrow(n.fit[n.fit$Type=="Standard",])- nrow(attr(x, "coefs"))) * sse)
     return(list(St.error=st.err, QC.error=qc.err, SSE=sse, sigma=rse, Syx=syx, r.squared=rsq))
 }
 

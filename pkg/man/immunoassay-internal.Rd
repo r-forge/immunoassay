@@ -2,6 +2,7 @@
 \alias{sigfit.auto}
 \alias{sigfit.default}
 \alias{check.sigfit}
+\alias{check.ima}
 \alias{cv}
 \alias{mesdci}
 \title{Internal 'immunoassay' library objects}

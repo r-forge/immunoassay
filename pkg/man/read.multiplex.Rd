@@ -38,7 +38,7 @@
     \item{Operator}{Name of the analyst that processed the run.}
     \item{Background}{Numeric vector of background values for all analytes.}
 }
-\details{
+\note{
     Currently the function can process data files from "Luminex IS" and "xPONENT" software 
     platforms. Tested on run files with few analytes only. Please email problem files to the 
     author.
